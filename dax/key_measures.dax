@@ -1,0 +1,35 @@
+-- ======================================================
+-- US Housing & Inflation Analytics - Key DAX Measures
+-- ======================================================
+
+-- 1. Housing Growth % (Year-over-Year)
+Housing Growth % = 
+VAR CurrentValue = AVERAGE(housing_processed[HomeValue])
+VAR PreviousYearValue = 
+    CALCULATE(
+        AVERAGE(housing_processed[HomeValue]),
+        SAMEPERIODLASTYEAR('Calendar'[Date])
+    )
+RETURN
+DIVIDE(CurrentValue - PreviousYearValue, PreviousYearValue)
+
+-- 2. CPI Inflation Rate (YoY)
+Inflation Rate % = 
+VAR CurrentCPI = AVERAGE(inflation_processed[CPI_Value])
+VAR PrevYearCPI = 
+    CALCULATE(
+        AVERAGE(inflation_processed[CPI_Value]),
+        SAMEPERIODLASTYEAR('Calendar'[Date])
+    )
+RETURN
+DIVIDE(CurrentCPI - PrevYearCPI, PrevYearCPI)
+
+-- 3. The "Divergence" Index
+-- (How much faster Housing grew compared to Inflation)
+Real Housing Growth Premium = [Housing Growth %] - [Inflation Rate %]
+
+-- 4. Dynamic Title for Charts
+Report Title = 
+"Housing Trend Analysis: " & 
+SELECTEDVALUE(housing_processed[State], "All US States") & 
+" (" & FORMAT(MIN('Calendar'[Date]), "YYYY") & "-" & FORMAT(MAX('Calendar'[Date]), "YYYY") & ")"
